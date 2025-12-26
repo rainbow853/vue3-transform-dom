@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TransferToWindow } from 'transfer-to-window';
-import { ref, computed, onMounted, onUnmounted, watchEffect } from 'vue';
+import { ref, computed, onMounted, watchEffect } from 'vue';
 import defaultTransferToWindow from './defaultTransferToWindow';
 const emit = defineEmits(['transform']);
 
@@ -63,14 +63,7 @@ watchEffect(() => {
   el.value && emit('transform', [outw, outh, scale, dx, dy]);
 })
 
-onMounted(() => {
-  document.addEventListener('keyup', keyup);
-  forceFresh();
-})
-
-onUnmounted(() => {
-  document.removeEventListener('keyup', keyup);
-})
+onMounted(() => forceFresh());
 
 /**
  * 强制刷新
@@ -98,7 +91,7 @@ export interface coor {
  */
 function getOutCoorPosition(e: MouseEvent): coor {
   let rect = el.value.getBoundingClientRect();
-  return { x: e.pageX - rect.left, y: e.pageY - rect.top };
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
 }
 
 /**
@@ -150,15 +143,6 @@ function mousemove(e: MouseEvent) {
 function mouseup() {
   document.removeEventListener('mousemove', mousemove)
   document.removeEventListener('mouseup', mouseup)
-}
-
-/**
- * 鼠标键盘事件
- */
-function keyup(e: KeyboardEvent) {
-  if (!el.value) return
-  if ((e as any).target.nodeName === 'INPUT') return
-  if (e.key === 'Escape' || e.key === ' ') forceFresh()
 }
 
 /**
